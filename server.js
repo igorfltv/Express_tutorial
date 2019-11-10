@@ -9,6 +9,7 @@ dotenv.config({ path: "./config/config.env" });
 connectDB();
 const app = express();
 
+app.use(express.json());
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
@@ -19,7 +20,7 @@ const server = app.listen(PORT, () => {
   console.log(
     `Server is running on ${PORT} using ${process.env.NODE_ENV} enviroment`
   );
-}); 
+});
 
 // Exception handle
 process.on("unhandledRejection", (err, promise) => {
