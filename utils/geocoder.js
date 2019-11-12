@@ -7,8 +7,6 @@ const options = {
   formatter: null
 };
 
-console.log(options);
-
 const geoc = geocode(options);
 
 module.exports = geoc;
