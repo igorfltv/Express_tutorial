@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const CourseSchema = new mongoose.Schema({
   title: {
     type: String,
-    trim: title,
+    trim: true,
     required: [true, "Please add title"]
   },
   description: {
@@ -27,7 +27,7 @@ const CourseSchema = new mongoose.Schema({
     default: false
   },
   createdAt: {
-    type: DataCue,
+    type: Date,
     default: Date.now
   },
   bootcamp: {
