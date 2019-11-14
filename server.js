@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
+const fileUpload = require("express-fileupload");
 const errorHandler = require("./middleware/error");
 const bootcamps = require("./routes/bootcamps");
 const courses = require("./routes/courses");
@@ -15,6 +16,7 @@ app.use(express.json());
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
+app.use(fileUpload());
 app.use(process.env.URL_BOOTCAMPS, bootcamps);
 app.use(process.env.URL_COURSES, courses);
 app.use(errorHandler);
