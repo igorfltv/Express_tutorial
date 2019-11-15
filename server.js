@@ -9,7 +9,7 @@ const courses = require("./routes/courses");
 const connectDB = require("./config/db");
 
 dotenv.config({ path: "./config/config.env" });
-//
+
 const app = express();
 connectDB();
 
