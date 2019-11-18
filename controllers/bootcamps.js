@@ -69,7 +69,7 @@ exports.updateBootcamp = asyncHandler(async (req, res, next) => {
     );
   }
 
-  let bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
+  bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true
   });
@@ -137,6 +137,12 @@ exports.uploadPhoto = asyncHandler(async (req, res, next) => {
   if (!bootcamp) {
     return next(
       new ErrorResponse(`Bootcamp id:${req.params.id} not found`, 404)
+    );
+  }
+
+  if (bootcamp.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorResponse(`Bootcamp picture can only be updated by owner`, 401)
     );
   }
 
