@@ -33,6 +33,17 @@ exports.getBootcamp = asyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/bootcamps
 // @access  Private
 exports.createBootcamp = asyncHandler(async (req, res, next) => {
+  // Add user
+  req.body.user = req.user.id;
+  // Check for Published bootcamp
+  const publishedBootcamp = await Bootcamp.findOne({ user: req.user.id });
+
+  if (publishedBootcamp && req.user.role !== "admin") {
+    return next(
+      new ErrorResponse(`You cannot create more than 1 bootcamp`, 400)
+    );
+  }
+
   const bootcamp = await Bootcamp.create(req.body);
   res.status(201).json({
     success: true,
@@ -44,16 +55,24 @@ exports.createBootcamp = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/v1/bootcamps/:id
 // @access  Private
 exports.updateBootcamp = asyncHandler(async (req, res, next) => {
-  const bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true
-  });
+  let bootcamp = await Bootcamp.findById(req.params.id);
 
   if (!bootcamp) {
     return next(
       new ErrorResponse(`Bootcamp id:${req.params.id} not found`, 404)
     );
   }
+
+  if (bootcamp.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorResponse(`Bootcamp can only be updated by owner`, 401)
+    );
+  }
+
+  let bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true
+  });
 
   res.status(200).json({
     success: true,
@@ -70,6 +89,12 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
   if (!bootcamp) {
     return next(
       new ErrorResponse(`Bootcamp id:${req.params.id} not found`, 404)
+    );
+  }
+
+  if (bootcamp.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorResponse(`Bootcamp can only be removed by owner`, 401)
     );
   }
 
