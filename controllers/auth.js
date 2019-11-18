@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const ErrorResponse = require("../utils/errorResponse");
+const mailer = require("../utils/sendEmail");
 const asyncHandler = require("../middleware/async");
 
 // @desc    Register User
@@ -76,7 +77,28 @@ exports.forgotPassword = asyncHandler(async (req, res, nex) => {
 
   await user.save({ validateBeforeSave: false });
 
-  res.status(200).json({ success: true, data: user });
+  //Create resetURL
+  const resetUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/resetpassword/${resetToken}`;
+
+  const message = `Make a request: \n\n ${resetUrl}`;
+
+  try {
+    await mailer({
+      email: user.email,
+      subject: "Password Reset for DevCamp",
+      message
+    });
+    res.status(200).json({ success: true, data: "Email sent" });
+  } catch (error) {
+    console.log(error);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiration = undefined;
+
+    await user.save({ validateBeforeSave: false });
+    return next(new ErrorResponse("Email could not be sent", 500));
+  }
 });
 
 // get token, create cookie and send response
