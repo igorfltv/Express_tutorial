@@ -9,6 +9,7 @@ const errorHandler = require("./middleware/error");
 const bootcamps = require("./routes/bootcamps");
 const courses = require("./routes/courses");
 const auth = require("./routes/auth");
+const users = require("./routes/users");
 const connectDB = require("./config/db");
 
 dotenv.config({ path: "./config/config.env" });
@@ -26,6 +27,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(process.env.URL_BOOTCAMPS, bootcamps);
 app.use(process.env.URL_COURSES, courses);
 app.use(process.env.URL_AUTH, auth);
+app.use(process.env.URL_USERS, users);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

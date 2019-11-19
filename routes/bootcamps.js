@@ -10,10 +10,10 @@ const {
 } = require("../controllers/bootcamps");
 
 const Bootcamp = require("../models/Bootcamp");
-const advancedResults = require("../middleware/filtering");
 
 // Other routers
 const courseRouter = require("./courses");
+const advancedResults = require("../middleware/filtering");
 const { protect, authorize } = require("../middleware/auth");
 
 router.use("/:bootcampId/courses", courseRouter);
