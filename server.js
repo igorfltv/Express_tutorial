@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
+
 const errorHandler = require("./middleware/error");
 const bootcamps = require("./routes/bootcamps");
 const courses = require("./routes/courses");
