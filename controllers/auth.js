@@ -3,6 +3,7 @@ const User = require("../models/User");
 const ErrorResponse = require("../utils/errorResponse");
 const mailer = require("../utils/sendEmail");
 const asyncHandler = require("../middleware/async");
+const STATUS_CODES = require("http-response-status-code");
 
 // @desc    Register User
 // @route   POST /api/v1/auth/register
@@ -21,7 +22,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
 
   // Create token
 
-  sendTokenResponse(user, 200, res);
+  sendTokenResponse(user, STATUS_CODES.OK, res);
 });
 
 // @desc    Login User
@@ -33,7 +34,12 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
   //   Validate
 
   if (!email || !password) {
-    return next(new ErrorResponse("Please provide an email and password", 400));
+    return next(
+      new ErrorResponse(
+        "Please provide an email and password",
+        STATUS_CODES.BAD_REQUEST
+      )
+    );
   }
 
   // Check for user
@@ -41,18 +47,22 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email }).select("+password");
 
   if (!user) {
-    return next(new ErrorResponse("Invalid credentials", 401));
+    return next(
+      new ErrorResponse("Invalid credentials", STATUS_CODES.UNAUTHORIZED)
+    );
   }
 
   const isMatch = await user.matchPassword(password);
 
   if (!isMatch) {
-    return next(new ErrorResponse("Invalid credentials", 401));
+    return next(
+      new ErrorResponse("Invalid credentials", STATUS_CODES.UNAUTHORIZED)
+    );
   }
 
   // Create token
 
-  sendTokenResponse(user, 200, res);
+  sendTokenResponse(user, STATUS_CODES.OK, res);
 });
 
 // @desc    Current logged in user
@@ -61,7 +71,7 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
 exports.getMe = asyncHandler(async (req, res, nex) => {
   const user = await User.findById(req.user.id);
 
-  res.status(200).json({ success: true, data: user });
+  res.status(STATUS_CODES.OK).json({ success: true, data: user });
 });
 
 // @desc    Update user details
@@ -75,7 +85,7 @@ exports.updateDetails = asyncHandler(async (req, res, nex) => {
 
   const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate);
 
-  res.status(200).json({ success: true, data: user });
+  res.status(STATUS_CODES.OK).json({ success: true, data: user });
 });
 
 // @desc    Update password
@@ -87,13 +97,15 @@ exports.updatePassword = asyncHandler(async (req, res, nex) => {
   // Check current password
 
   if (!(await user.matchPassword(req.body.currentPassword))) {
-    return next(new ErrorResponse("Wrong password!", 401));
+    return next(
+      new ErrorResponse("Wrong password!", STATUS_CODES.UNAUTHORIZED)
+    );
   }
 
   user.password = req.body.newPassword;
   await user.save();
 
-  sendTokenResponse(user, 200, res);
+  sendTokenResponse(user, STATUS_CODES.OK, res);
 });
 
 // @desc    Forgot Password
@@ -123,7 +135,7 @@ exports.forgotPassword = asyncHandler(async (req, res, nex) => {
       subject: "Password Reset for DevCamp",
       message
     });
-    res.status(200).json({ success: true, data: "Email sent" });
+    res.status(STATUS_CODES.OK).json({ success: true, data: "Email sent" });
   } catch (error) {
     console.log(error);
     user.resetPasswordToken = undefined;
@@ -149,7 +161,7 @@ exports.resetPassword = asyncHandler(async (req, res, nex) => {
   });
 
   if (!user) {
-    return next(new ErrorResponse("Invalid token", 400));
+    return next(new ErrorResponse("Invalid token", STATUS_CODES.BAD_REQUEST));
   }
 
   // Set new password
@@ -159,7 +171,7 @@ exports.resetPassword = asyncHandler(async (req, res, nex) => {
 
   await user.save();
 
-  sendTokenResponse(user, 200, res);
+  sendTokenResponse(user, STATUS_CODES.OK, res);
 });
 
 // get token, create cookie and send response

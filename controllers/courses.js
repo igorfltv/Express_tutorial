@@ -2,6 +2,7 @@ const Course = require("../models/Course");
 const Bootcamp = require("../models/Bootcamp");
 const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
+const STATUS_CODES = require("http-response-status-code");
 
 // @desc    Get all Courses
 // @route   GET /api/v1/courses
@@ -10,13 +11,13 @@ const asyncHandler = require("../middleware/async");
 exports.getCourses = asyncHandler(async (req, res, next) => {
   if (req.params.bootcampId) {
     const courses = await Course.find({ bootcamp: req.params.bootcampId });
-    return res.status(200).json({
+    return res.status(STATUS_CODES.OK).json({
       success: true,
       count: courses.length,
       data: courses
     });
   } else {
-    res.status(200).json(res.advancedResults);
+    res.status(STATUS_CODES.OK).json(res.advancedResults);
   }
 });
 
@@ -33,7 +34,7 @@ exports.getCourseById = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Course id:${req.params.id} not found`, 404));
   }
 
-  res.status(200).json({
+  res.status(STATUS_CODES.OK).json({
     success: true,
     data: course
   });
@@ -55,12 +56,17 @@ exports.createCourse = asyncHandler(async (req, res, next) => {
   }
 
   if (bootcamp.user.toString() !== req.user.id && req.user.role !== "admin") {
-    return next(new ErrorResponse(`Course can only be updated by owner`, 401));
+    return next(
+      new ErrorResponse(
+        `Course can only be updated by owner`,
+        STATUS_CODES.UNAUTHORIZED
+      )
+    );
   }
 
   const course = await Course.create(req.body);
 
-  res.status(201).json({
+  res.status(STATUS_CODES.CREATED).json({
     success: true,
     data: course
   });
@@ -77,7 +83,12 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
   }
 
   if (course.user.toString() !== req.user.id && req.user.role !== "admin") {
-    return next(new ErrorResponse(`Course can only be updated by owner`, 401));
+    return next(
+      new ErrorResponse(
+        `Course can only be updated by owner`,
+        STATUS_CODES.UNAUTHORIZED
+      )
+    );
   }
 
   course = await Course.findByIdAndUpdate(req.params.id, req.body, {
@@ -85,7 +96,7 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
     runValidators: true
   });
 
-  res.status(200).json({
+  res.status(STATUS_CODES.OK).json({
     success: true,
     data: course
   });
@@ -102,12 +113,17 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
   }
 
   if (course.user.toString() !== req.user.id && req.user.role !== "admin") {
-    return next(new ErrorResponse(`Course can only be Deleted by owner`, 401));
+    return next(
+      new ErrorResponse(
+        `Course can only be Deleted by owner`,
+        STATUS_CODES.UNAUTHORIZED
+      )
+    );
   }
 
   await course.remove();
 
-  res.status(200).json({
+  res.status(STATUS_CODES.OK).json({
     success: true,
     data: {}
   });

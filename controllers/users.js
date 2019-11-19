@@ -1,12 +1,13 @@
 const ErrorResponse = require("../utils/errorResponse");
 const User = require("../models/User");
 const asyncHandler = require("../middleware/async");
+const STATUS_CODES = require("http-response-status-code");
 
 // @desc    GET all users
 // @route   GET /api/v1/auth/users
 // @access  Private/Admin
 exports.getUsers = asyncHandler(async (req, res, next) => {
-  res.status(200).json(res.advancedResults);
+  res.status(STATUS_CODES.OK).json(res.advancedResults);
 });
 
 // @desc    GET single user
@@ -14,7 +15,7 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
 // @access  Private/Admin
 exports.getUser = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.params.id);
-  res.status(200).json({
+  res.status(STATUS_CODES.OK).json({
     success: true,
     data: user
   });
@@ -25,7 +26,7 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 // @access  Private/Admin
 exports.createUser = asyncHandler(async (req, res, next) => {
   const user = await User.create(req.body);
-  res.status(201).json({
+  res.status(STATUS_CODES.CREATED).json({
     success: true,
     data: user
   });
@@ -40,7 +41,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
     runValidators: true
   });
 
-  res.status(200).json({
+  res.status(STATUS_CODES.OK).json({
     success: true,
     data: user
   });
@@ -51,7 +52,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 // @access  Private/Admin
 exports.deleteUser = asyncHandler(async (req, res, next) => {
   await User.findByIdAndDelete(req.params.id);
-  res.status(200).json({
+  res.status(STATUS_CODES.OK).json({
     success: true,
     data: {}
   });

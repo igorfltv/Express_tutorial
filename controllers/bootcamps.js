@@ -3,12 +3,13 @@ const Bootcamp = require("../models/Bootcamp");
 const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
 const geoCoder = require("../utils/geocoder");
+const STATUS_CODES = require("http-response-status-code");
 
 // @desc    Get all Bootcamps
 // @route   GET /api/v1/bootcamps
 // @access  Public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-  res.status(200).json(res.advancedResults);
+  res.status(STATUS_CODES.OK).json(res.advancedResults);
 });
 
 // @desc    Get a single Bootcamp
@@ -23,7 +24,7 @@ exports.getBootcamp = asyncHandler(async (req, res, next) => {
     );
   }
 
-  res.status(200).json({
+  res.status(STATUS_CODES.OK).json({
     success: true,
     data: bootcamp
   });
@@ -40,12 +41,15 @@ exports.createBootcamp = asyncHandler(async (req, res, next) => {
 
   if (publishedBootcamp && req.user.role !== "admin") {
     return next(
-      new ErrorResponse(`You cannot create more than 1 bootcamp`, 400)
+      new ErrorResponse(
+        `You cannot create more than 1 bootcamp`,
+        STATUS_CODES.BAD_REQUEST
+      )
     );
   }
 
   const bootcamp = await Bootcamp.create(req.body);
-  res.status(201).json({
+  res.status(STATUS_CODES.CREATED).json({
     success: true,
     data: bootcamp
   });
@@ -65,7 +69,10 @@ exports.updateBootcamp = asyncHandler(async (req, res, next) => {
 
   if (bootcamp.user.toString() !== req.user.id && req.user.role !== "admin") {
     return next(
-      new ErrorResponse(`Bootcamp can only be updated by owner`, 401)
+      new ErrorResponse(
+        `Bootcamp can only be updated by owner`,
+        STATUS_CODES.UNAUTHORIZED
+      )
     );
   }
 
@@ -74,7 +81,7 @@ exports.updateBootcamp = asyncHandler(async (req, res, next) => {
     runValidators: true
   });
 
-  res.status(200).json({
+  res.status(STATUS_CODES.OK).json({
     success: true,
     data: bootcamp
   });
@@ -94,13 +101,16 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
 
   if (bootcamp.user.toString() !== req.user.id && req.user.role !== "admin") {
     return next(
-      new ErrorResponse(`Bootcamp can only be removed by owner`, 401)
+      new ErrorResponse(
+        `Bootcamp can only be removed by owner`,
+        STATUS_CODES.UNAUTHORIZED
+      )
     );
   }
 
   bootcamp.remove();
 
-  res.status(200).json({
+  res.status(STATUS_CODES.OK).json({
     success: true
   });
 });
@@ -121,7 +131,7 @@ exports.getBootcampsInRadius = asyncHandler(async (req, res, next) => {
     location: { $geoWithin: { $centerSphere: [[lng, lat], radius] } }
   });
 
-  res.status(200).json({
+  res.status(STATUS_CODES.OK).json({
     success: true,
     count: bootcamps.length,
     data: bootcamps
@@ -142,22 +152,29 @@ exports.uploadPhoto = asyncHandler(async (req, res, next) => {
 
   if (bootcamp.user.toString() !== req.user.id && req.user.role !== "admin") {
     return next(
-      new ErrorResponse(`Bootcamp picture can only be updated by owner`, 401)
+      new ErrorResponse(
+        `Bootcamp picture can only be updated by owner`,
+        STATUS_CODES.UNAUTHORIZED
+      )
     );
   }
 
   if (!req.files) {
-    return next(new ErrorResponse(`Photo not uploaded`, 400));
+    return next(
+      new ErrorResponse(`Photo not uploaded`, STATUS_CODES.BAD_REQUEST)
+    );
   }
 
   const file = req.files.file;
 
   if (!file.mimetype.startsWith("image/")) {
-    return next(new ErrorResponse(`Please upload a picture`, 400));
+    return next(
+      new ErrorResponse(`Please upload a picture`, STATUS_CODES.BAD_REQUEST)
+    );
   }
 
   if (file.size > process.env.MAX_FILE_UPLOAD) {
-    return next(new ErrorResponse(`Size is too big`, 400));
+    return next(new ErrorResponse(`Size is too big`, STATUS_CODES.BAD_REQUEST));
   }
 
   file.name = `photo_${bootcamp._id}${path.parse(file.name).ext}`;
@@ -168,7 +185,7 @@ exports.uploadPhoto = asyncHandler(async (req, res, next) => {
       return next(new ErrorResponse(`Upload error`, 500));
     }
     await Bootcamp.findByIdAndUpdate(req.params.id, { photo: file.name });
-    res.status(200).json({
+    res.status(STATUS_CODES.OK).json({
       success: true,
       data: file.name
     });

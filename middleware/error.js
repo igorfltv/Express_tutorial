@@ -1,4 +1,5 @@
 const ErrorResponse = require("../utils/errorResponse");
+const STATUS_CODES = require("http-response-status-code");
 
 const errorHandler = (err, req, res, next) => {
   //   console.log(err);
@@ -7,20 +8,20 @@ const errorHandler = (err, req, res, next) => {
 
   if (err.name === "CastError") {
     const message = `Resource with id ${err.value} not found`;
-    error = new ErrorResponse(message, 404);
+    error = new ErrorResponse(message, STATUS_CODES.NOT_FOUND);
   }
 
   if (err.name === "ValidationError") {
     const message = Object.values(err.errors).map(val => val.message);
-    error = new ErrorResponse(message, 400);
+    error = new ErrorResponse(message, STATUS_CODES.BAD_REQUEST);
   }
 
   if (err.code === 11000) {
     const message = `Dublicate field entered`;
-    error = new ErrorResponse(message, 400);
+    error = new ErrorResponse(message, STATUS_CODES.BAD_REQUEST);
   }
 
-  res.status(error.statusCode || 500).json({
+  res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
     success: false,
     err: error.message || "Server Error"
   });
