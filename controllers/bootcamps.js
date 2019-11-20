@@ -20,7 +20,10 @@ exports.getBootcamp = asyncHandler(async (req, res, next) => {
 
   if (!bootcamp) {
     return next(
-      new ErrorResponse(`Bootcamp id:${req.params.id} not found`, 404)
+      new ErrorResponse(
+        `Bootcamp id:${req.params.id} not found`,
+        STATUS_CODES.BAD_REQUEST
+      )
     );
   }
 
@@ -63,7 +66,10 @@ exports.updateBootcamp = asyncHandler(async (req, res, next) => {
 
   if (!bootcamp) {
     return next(
-      new ErrorResponse(`Bootcamp id:${req.params.id} not found`, 404)
+      new ErrorResponse(
+        `Bootcamp id:${req.params.id} not found`,
+        STATUS_CODES.BAD_REQUEST
+      )
     );
   }
 
@@ -95,7 +101,10 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
 
   if (!bootcamp) {
     return next(
-      new ErrorResponse(`Bootcamp id:${req.params.id} not found`, 404)
+      new ErrorResponse(
+        `Bootcamp id:${req.params.id} not found`,
+        STATUS_CODES.BAD_REQUEST
+      )
     );
   }
 
@@ -146,7 +155,10 @@ exports.uploadPhoto = asyncHandler(async (req, res, next) => {
 
   if (!bootcamp) {
     return next(
-      new ErrorResponse(`Bootcamp id:${req.params.id} not found`, 404)
+      new ErrorResponse(
+        `Bootcamp id:${req.params.id} not found`,
+        STATUS_CODES.BAD_REQUEST
+      )
     );
   }
 

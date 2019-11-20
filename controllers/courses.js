@@ -5,7 +5,6 @@ const asyncHandler = require("../middleware/async");
 const STATUS_CODES = require("http-response-status-code");
 
 // @desc    Get all Courses
-// @route   GET /api/v1/courses
 // @route   GET /api/v1/bootcamps/:bootcampId/courses
 // @access  Public
 exports.getCourses = asyncHandler(async (req, res, next) => {
@@ -31,7 +30,12 @@ exports.getCourseById = asyncHandler(async (req, res, next) => {
   });
 
   if (!course) {
-    return next(new ErrorResponse(`Course id:${req.params.id} not found`, 404));
+    return next(
+      new ErrorResponse(
+        `Course id:${req.params.id} not found`,
+        STATUS_CODES.BAD_REQUEST
+      )
+    );
   }
 
   res.status(STATUS_CODES.OK).json({
@@ -51,14 +55,17 @@ exports.createCourse = asyncHandler(async (req, res, next) => {
 
   if (!bootcamp) {
     return next(
-      new ErrorResponse(`Bootcamp id:${req.params.bootcampId} not found`, 404)
+      new ErrorResponse(
+        `Bootcamp id:${req.params.bootcampId} not found`,
+        STATUS_CODES.BAD_REQUEST
+      )
     );
   }
 
   if (bootcamp.user.toString() !== req.user.id && req.user.role !== "admin") {
     return next(
       new ErrorResponse(
-        `Course can only be updated by owner`,
+        `Course can only be created by owner`,
         STATUS_CODES.UNAUTHORIZED
       )
     );
@@ -79,7 +86,12 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
   let course = Course.findById(req.params.id);
 
   if (!course) {
-    return next(new ErrorResponse(`Course id:${req.params.id} not found`, 404));
+    return next(
+      new ErrorResponse(
+        `Course id:${req.params.id} not found`,
+        STATUS_CODES.BAD_REQUEST
+      )
+    );
   }
 
   if (course.user.toString() !== req.user.id && req.user.role !== "admin") {
@@ -109,7 +121,12 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
   const course = Course.findById(req.params.id);
 
   if (!course) {
-    return next(new ErrorResponse(`Course id:${req.params.id} not found`, 404));
+    return next(
+      new ErrorResponse(
+        `Course id:${req.params.id} not found`,
+        STATUS_CODES.BAD_REQUEST
+      )
+    );
   }
 
   if (course.user.toString() !== req.user.id && req.user.role !== "admin") {

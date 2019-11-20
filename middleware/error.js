@@ -2,7 +2,7 @@ const ErrorResponse = require("../utils/errorResponse");
 const STATUS_CODES = require("http-response-status-code");
 
 const errorHandler = (err, req, res, next) => {
-  //   console.log(err);
+  // console.log(err);
   let error = { ...err };
   error.message = err.message;
 
