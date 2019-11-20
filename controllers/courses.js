@@ -6,7 +6,7 @@ const STATUS_CODES = require("http-response-status-code");
 
 // @desc    Get all Courses
 // @route   GET /api/v1/courses
-// @route   GET /api/v1/courses/bootcamps/:bootcampId/courses
+// @route   GET /api/v1/bootcamps/:bootcampId/courses
 // @access  Public
 exports.getCourses = asyncHandler(async (req, res, next) => {
   if (req.params.bootcampId) {
