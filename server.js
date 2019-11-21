@@ -7,6 +7,7 @@ const helmet = require("helmet");
 const xssClean = require("xss-clean");
 const rateLimit = require("express-rate-limit");
 const hpp = require("hpp");
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 
@@ -29,6 +30,7 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 app.use(fileUpload());
+
 // Security
 app.use(mongoSanitize());
 app.use(helmet());
@@ -40,7 +42,9 @@ app.use(
   })
 );
 app.use(hpp());
+app.use(cors());
 //
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use(process.env.URL_BOOTCAMPS, bootcamps);
 app.use(process.env.URL_COURSES, courses);
@@ -49,6 +53,7 @@ app.use(process.env.URL_USERS, users);
 app.use(process.env.URL_REVIEWS, reviews);
 app.use(errorHandler);
 
+// Start Server
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   console.log(
