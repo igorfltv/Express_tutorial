@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const path = require("path");
+const mongoSanitize = require("express-mongo-sanitize");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 
@@ -24,6 +25,7 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 app.use(fileUpload());
+app.use(mongoSanitize());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(process.env.URL_BOOTCAMPS, bootcamps);
 app.use(process.env.URL_COURSES, courses);
